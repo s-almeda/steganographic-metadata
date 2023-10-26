@@ -1,0 +1,126 @@
+<!-- Referenced: https://www.w3schools.com/html/html_responsive.asp-->
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" type="text/css" href="/css/styles.css">
+
+</head>
+
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<script src="https://cdn.jsdelivr.net/npm/jimp@0.16.1/dist/jimp.min.js"></script>
+
+
+<h1>QR Code Image Processing</h1>
+
+
+<div class="container">
+  <div class = "row">
+  <div class="col">
+  <div class="bg-primary text-white p-3">
+
+    <!-- Content for Column 1 -->
+    <input type="file" id="imageInput" accept="image/*">
+    
+    <!-- Button to call decodeImages() function -->
+    <button id="encodeBtn">Encode Image (embed QR Code)</button>
+    <button id="decodeButton">Decode Image (look for hidden QR Code)</button>
+    <button id="resetButton">Reset</button>
+    <canvas id="imageCanvas" width="400" height="300"></canvas>
+
+    <div class="col">
+      <div class="bg-secondary text-white p-3">
+          <h3>Your QR Code will appear here: (note: right now this is the same qr code everytime, until we implement *generating* a qr!)</h3>
+          <canvas id="qrCanvas"></canvas>
+      </div>
+    </div>
+
+  </div>
+  </div>
+  </div>
+</div>
+
+
+  </body>
+  <script>
+        //get elements
+        const imageInput = document.getElementById("imageInput");
+        const encodeImage = document.getElementById("encodeBtn");
+        const canvas = document.getElementById("imageCanvas");
+        const qrCode = document.getElementById("qrCanvas");
+        const ctx = canvas.getContext("2d");
+
+
+        // ---  put image in canvas upon upload image -- //
+        imageInput.addEventListener("change", handleImageUpload);
+
+        function handleImageUpload(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const img = new Image();
+                    img.src = e.target.result;
+                    img.onload = function () {
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        ctx.drawImage(img, 0, 0);
+                    };
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // -- generate and show this images' QR code -- //
+        function generateAndShowQRCode(){
+          qr_ctx = qrCanvas.getContext('2d');
+          console.log("\'making\' your qr code... (just using a pregenerated one for now)");
+
+          // Create an HTML image element to load the QR code image
+          const qr = new Image();
+          qr.src = 'https://i.ibb.co/vmGdMNq/qr.png';
+          qr.setAttribute('crossOrigin', '');
+
+          qr.onload = function() {
+              console.log("QR code generated successfully");
+              qr_ctx.drawImage(qr, 0, 0);
+              const qrImageData = qr_ctx.getImageData(0, 0, qrCanvas.width, qrCanvas.height).data;
+              const qrData = qrImageData.data;
+
+
+              // Loop through the pixel data and check the R (Red) values
+              for (let i = 0; i < pixelData.length; i += 4) {
+                  // i represents the index of the first element of each pixel (R, G, B, A)
+                  if (pixelData[i] > 200) {
+                      qrBinaryArray.push(1);
+                  } else {
+                      qrBinaryArray.push(0);
+                  }
+              }
+          };
+
+          // Handle image loading errors
+          qr.onerror = function() {
+              console.error("Failed to load the qr code");
+          };
+
+      };
+
+
+        encodeImage.addEventListener("click", () => {
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+
+            // Process the image - change all pixels to red
+            for (let i = 0; i < data.length; i += 4) {
+                data[i] = 255;     // Red
+                data[i + 1] = 0;   // Green
+                data[i + 2] = 0;   // Blue
+                // Alpha remains the same (data[i + 3])
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+        });
+  </script>
+</html>
+
