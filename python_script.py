@@ -3,6 +3,9 @@ by Shm
 borrows ideas from: https://elisklar.medium.com/imagehash-easy-steganography-240b92b586e2
 '''
 
+###TODOS:
+###     Fix decode button, fix Reset Button, have it display user's image, clean code
+
 import qrcode
 import random
 from PIL import Image
@@ -85,8 +88,7 @@ def revealEncoding(imgpath): # -- this function takes an image path, converts pi
 
 def main():
     embedQRCode("bart.jpg")
-    #generateQRCode(userInputedData)
-    print("hello")
+    print("Done running the Python Script")
 
 if __name__ == "__main__":
     main()
