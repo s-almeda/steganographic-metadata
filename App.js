@@ -5,6 +5,8 @@ steganographic metadata site
 //Node modules to *require*
 //if these cause errors, be sure you've installed them, ex: 'npm install express'
 const express = require('express');
+const { exec } = require('child_process');
+const pythonScriptPath = 'path/to/python_script.py';
 const router = express.Router();
 const app = express();
 const path = require('path');
@@ -35,6 +37,20 @@ app.get('/c', function (req, res) {
     res.sendFile(publicPath + '/c.html');
 });
 
+
+app.post('/run-python', (req, res) => {
+    const pythonScriptPath = 'python_script.py';
+
+    exec(`python ${pythonScriptPath}`, (error, stdout, stderr) => {
+        if (error) {
+            console.error(`Error: ${error.message}`);
+            res.status(500).send(`Error: ${error.message}`);
+        } else {
+            console.log(`Python script output: ${stdout}`);
+            res.send(stdout);
+        }
+    });
+});
 
 //run this server by entering "node App.js" using your command line. 
    app.listen(port, () => {
