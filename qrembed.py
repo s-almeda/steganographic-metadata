@@ -3,17 +3,12 @@ by Shm
 borrows ideas from: https://elisklar.medium.com/imagehash-easy-steganography-240b92b586e2
 '''
 from PIL import Image
-import qrcode
+
 import numpy as np
 
-def generateQRCode(data, imageName='images/qr.png'):
-    img = qrcode.make(data)
-    img.save(imageName)
-    img.resize([300,300]) #May not be needed
-    return img
-
 def main():
-    qr =generateQRCode("https://example.com/") 
+    qr = Image.open('images/qr.png') #path to QR Code image go here. 
+    qr = qr.resize([300,300]) #did this to try an make it bigger to see if that makes a difference lol
     pixelMap = qr.load()
 
     # --- create a 2D numpy array of 0s and 1s based on qr code, 0 = black, 1 = white --- #

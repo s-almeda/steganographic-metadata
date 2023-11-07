@@ -26,6 +26,10 @@
     <button id="encodeBtn">Encode Image (embed QR Code)</button>
     <button id="decodeButton">Decode Image (look for hidden QR Code)</button>
     <button id="resetButton">Reset</button>
+    <form id = "dataForm"> </form>
+        <label for="data">Enter Data to Encode:</label>
+        <input type="text" id="data" name="data"><br><br>
+    </form>
     <canvas id="imageCanvas" width="400" height="300"></canvas>
 
     <div class="col">
@@ -56,14 +60,30 @@
 
         function handleImageUpload(e) {
             const file = e.target.files[0];
+            var formData = new FormData();
+
+            // Upload Image:
+            formData.append('image', file);
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(data => {
+                console.log(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function (e) {
                     const img = new Image();
                     img.src = e.target.result;
                     img.onload = function () {
-                        canvas.width = 400 ;//img.width;
-                        canvas.height = 400; //img.height;
+                        canvas.width = img.width;
+                        canvas.height = img.height;
                         ctx.drawImage(img, 0, 0);
                     };
                 };
@@ -95,22 +115,35 @@
 
       };
 
+    
+    //When the user clicks the encode image button, grab whatever is in the text box,
+    //Make the QR code, then encode the image
     encodeImage.addEventListener('click', () => {
     
+    //Get data:
+    var userInputedData = document.getElementById("data").value
+    console.log("Userdata: " + userInputedData)
+
+    //Add data to formData:
+    var userFormData = new FormData();
+    userFormData.append('userInputedData', userInputedData);
+
     //Run script to create QR Code
     fetch('/run-python', {
         method: 'POST',
+        body: userFormData
     })
     .then(response => response.text())
     .then(data => {
         console.log(data);
+        generateAndShowQRCode()
     })
     .catch(error => {
         console.error('Error:', error);
     });
 
-
-    generateAndShowQRCode()
+    //Show the QR code:
+    //generateAndShowQRCode()
     console.log("Encoding Complete")
 });
   </script>
