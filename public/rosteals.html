@@ -2,7 +2,7 @@
 
 <h2>Special Upload File Form:</h2>
 
-<form method="POST" action="/image" enctype="multipart/form-data">
+<form id="uploadForm" method="POST" action="/image" enctype="multipart/form-data" onsubmit="handleFormSubmit(event)">
     <div>
         <label>Upload profile picture</label>
         <input type="file" name="image" required/>
@@ -13,45 +13,42 @@
 </form>
 
 <br>
-Image ID: <div id="image_id"></div>
+Image ID: <div id="imageId"></div>
 <br>
-<button id="decodeButton">Decode Image (look for hidden secretsin the image)</button>
-<button id="resetButton">Reset</button>
-<canvas id="imageCanvas" width="400" height="300"></canvas>
+---
+<h2>Encoded Image will appear here: </h2>
+<br>
+<img id="encodedImageZone" src="">
+---
+<button id="decodeButton">Decode Image (look for and reveal the hidden secrets in the image)</button>
 
 
-<!--script>
 
-    function handleImageUpload(e) {
-        const file = e.target.files[0];
-        console.log("received image");
-    }
-    
-    function submit() {
 
-        var formData = new FormData();
-        var imageId = generateImageID(); 
+<script>
+    function handleFormSubmit(event) {
+        event.preventDefault(); // Prevent the default form submission behavior
+        //OPTIONAL TODO: this would be a good spot to add a loading animation.
+        const form = event.target;
+        const formData = new FormData(form);
 
-        //display newly generated image ID on the page
-        document.getElementById("image_id").innerHTML = imageId; 
-
-        // sends the image and its id in the body of the request.
-        formData.append('image', file);
-        formData.append('id', imageId); 
-
-        console.log("sending image to server...")
-        fetch('/upload', { //send it to the 'upload' route in 'App.js'
+        fetch('/image', {
             method: 'POST',
-            body: formData
+            body: formData,
         })
         .then(response => response.text())
         .then(data => {
-            console.log(data);
+            data= JSON.parse(data)
+            const encodedImageZone = document.getElementById('encodedImageZone');
+            const image_id = document.getElementById('imageId');
+            encodedImageZone.src = data.encodedImagePath;
+            imageId.innerHTML =  data.imageId;
+            console.log(data); // Log the server response if needed
+
         })
         .catch(error => {
             console.error('Error:', error);
-        });
-        
-    }
 
-</script-->
+        });
+    }
+</script>

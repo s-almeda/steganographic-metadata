@@ -10,9 +10,9 @@ const { exec } = require('child_process');
 const pythonScriptPath = 'path/to/python_script.py';    
 const router = express.Router();
 const app = express();
+const fs = require('fs');
 app.use(express.json());
 const path = require('path');
-const request = require('request'); //allows us to make requests to Flask server
 const multer = require('multer'); //handles file uploads and storage
 const axios = require('axios');
 
@@ -33,6 +33,7 @@ const upload = multer({
     }
 })
 
+/*-- define API here... --*/
 const apiEndpoint = 'http://127.0.0.1:8001/process'; // Replace with your actual API endpoint
 
 var publicPath = path.join(__dirname, 'public'); //get the path to use our "public" folder where we stored our html, css, images, etc
@@ -55,7 +56,7 @@ app.get('/rosteals', function (req, res) {
     res.sendFile(publicPath + '/rosteals.html');
 });
 
-function generateImageID(){
+function generateImageId(){
     //TODO: placeholder! replace with actual ID generation (ie. the next unused id in the database) later!! 
     return 1234; 
 }
@@ -63,76 +64,58 @@ function generateImageID(){
 
 //This will save the image in the upload folder, and send it to the flask server:
 app.post('/image', upload.single('image'), async (req, res) => {
-    try {
-    const image = req.file.buffer.toString('base64')
-    const imageId = generateImageId();
-    const fileName = "cover"+req.file.originalname.split('.')[1];
-
-    console.log("sending to API endpoint...");
-    // Create FormData for sending the image to Flask API endpoint
-    const formData = new FormData();
-    formData.append('image', image, { filename: fileName, contentType: 'image/*' });
-    formData.append('id', imageId);
-
-
-    res.status(201).send('Image uploaded succesfully')
-    } catch (error) {
-    console.log(error)
-    res.status(400).send(error)
-    }
-    })
-
-/*
-app.post('/upload', (req, res) => {
-    // Get the file that was set to our field named "image"
-    const { image } = req.files;
-
-    // If no image submitted, exit
-    if (!image) return res.sendStatus(400);
-
-    // If does not have image mime type prevent from uploading
-    if (/^image/.test(image.mimetype)) return res.sendStatus(400);
-
-    // Move the uploaded image to our upload folder
-    image.mv(__dirname + '/upload/' + image.name);
-
-    // All good
-    res.sendStatus(200);
-});
-/*
-app.post('/upload', async (req, res) => {
-
-    try {
-        console.log("server received submission!");
-        console.log(req.files);
-        const { image } = req.files;
-        if (!image) return res.sendStatus(400);
-
+    console.log("ugh");
     
-        // If does not have image mime type prevent from uploading
-        if (/^image/.test(image.mimetype)) return res.sendStatus(400);
+    try {
+        
+        //const image = req.file.buffer.toString('base64')
+        var imageId = generateImageId();
+        console.log(imageId);
+        // Save the file to the filesystem- TODO: change this to save to database instead! 
+        const fileName = "cover"+ imageId + "." + req.file.originalname.split('.')[1];
+        // TODO: this should grab and save the URL where this specific image would be found, rather than sending the local filepath.
+        const filePath = path.join(publicPath, '/upload', fileName); 
+        fs.writeFileSync(filePath, req.file.buffer);
 
-        // Save the image to the public/upload folder
-        image.mv(__dirname + 'public/upload/' + image.name);
 
 
+        
 
+        // Create FormData for sending to to Flask API endpoint...
+        const formData = new FormData();
+        formData.append('imagePath', filePath);
+        formData.append('id', imageId);
 
-
-        // Send the image to the Flask API endpoint using Axios
-        const response = await axios.post(apiUrl, formData, {
+        console.log("waiting for API endpoint response...");
+        const response = await axios.post(apiEndpoint, formData, {
             headers: {
-                ...formData.getHeaders(),
+                'Content-Type': 'multipart/form-data', // Adjust content type as needed
             },
         });// Respond with success message (you may customize this based on your needs)
-        res.send('Image uploaded successfully to Flask API. User ID: ' + userId + ', Filename: ' + fileName);
-    } catch (error) {
-        console.error('Error:', error.message);
-        res.status(500).send('Internal Server Error');
-    }
-    
-});
-*/
+        console.log('Server received a successful response from Flask encoding server! ID: ' + imageId + ', Filename: ' + fileName);
+        
+        
+
+        // Create a response object to send to client...            
+        
+        //TODO: we'll receive the URL to the encoded image from the Flask API
+            // and then we'll send that URL to the client to show up on the webpage.
+            // for now, we're just using the local file path. 
+        const responseObject = {
+            imageId: imageId,
+            encodedImagePath: (response.data.encodedImagePath),
+
+        };
+        res.send(responseObject);
+        
+
+        } catch (error) {
+        console.log(error)
+        res.status(400).send(error)
+        }
+    })
+
+
 //This runs the QRCode Python Script (currently called python_script)
 app.post('/run-python', (req, res) => {
     const pythonScriptPath = 'python_script.py';
