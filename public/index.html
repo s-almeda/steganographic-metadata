@@ -3,149 +3,22 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" type="text/css" href="/css/styles.css">
-
+<link rel="stylesheet" type="text/css" href="/css/styles.css"> 
 </head>
 
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-<script src="https://cdn.jsdelivr.net/npm/jimp@0.16.1/dist/jimp.min.js"></script>
 
-
-<h1>QR Code Image Processing</h1>
-
-
-<div class="container">
-  <div class = "row">
-  <div class="col">
-  <div class="bg-primary text-white p-3">
-
-    <!-- Content for Column 1 -->
-    <input type="file" id="imageInput" accept="image/*">
-    
-    <!-- Button to call decodeImages() function -->
-    <button id="encodeBtn">Encode Image (embed QR Code)</button>
-    <button id="decodeButton">Decode Image (look for hidden QR Code)</button>
-    <button id="resetButton">Reset</button>
-    <form id = "dataForm"> </form>
-        <label for="data">Enter Data to Encode:</label>
-        <input type="text" id="data" name="data"><br><br>
-    </form>
-    <canvas id="imageCanvas" width="400" height="300"></canvas>
-
-    <div class="col">
-      <div class="bg-secondary text-white p-3">
-          <h3>Your QR Code will appear here: </h3>
-          <canvas id="qrCanvas" width="200" height="200"></canvas>
-      </div>
-    </div>
-
-  </div>
-  </div>
-  </div>
+  <h1>Page 2, Electric Boogaloo!</h1>
 </div>
 
 
-  </body>
-  <script>
-        //get elements
-        const imageInput = document.getElementById("imageInput");
-        const encodeImage = document.getElementById("encodeBtn");
-        const canvas = document.getElementById("imageCanvas");
-        const qrCode = document.getElementById("qrCanvas");
-        const ctx = canvas.getContext("2d");
+<div class="menu">
+  <a href="/qrcode">QR CODE embedding</a>
+  <a href="/rosteals">robust embedding</a>
+</div>
 
 
-        // ---  put image in canvas upon upload image -- //
-        imageInput.addEventListener("change", handleImageUpload);
 
-        function handleImageUpload(e) {
-            const file = e.target.files[0];
-            var formData = new FormData();
 
-            // Upload Image:
-            formData.append('image', file);
-            fetch('/upload', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.text())
-            .then(data => {
-                console.log(data);
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    const img = new Image();
-                    img.src = e.target.result;
-                    img.onload = function () {
-                        canvas.width = img.width;
-                        canvas.height = img.height;
-                        ctx.drawImage(img, 0, 0);
-                    };
-                };
-                reader.readAsDataURL(file);
-            }
-        }
-
-        // -- generate and show this images' QR code -- //
-        function generateAndShowQRCode(){
-          qr_ctx = qrCanvas.getContext('2d');
-          console.log("Looking for the new QR code");
-
-          // Create an HTML image element to load the QR code image
-          const qr = new Image();
-          qr.src = 'images/qr2.png?' + new Date().getTime(); // Date is here to avoid cacheing that would not change the image
-          qr.setAttribute('crossOrigin', '');
-
-          qr.onload = function() {
-              console.log("QR code generated successfully");
-              qr_ctx.drawImage(qr, 0, 0);
-              const qrImageData = qr_ctx.getImageData(0, 0, qrCanvas.width, qrCanvas.height).data; //TODO what is this used for?
-              const qrData = qrImageData.data;
-          };
-
-          // Handle image loading errors
-          qr.onerror = function() {
-              console.error("Failed to load the qr code");
-          };
-
-      };
-
-    
-    //When the user clicks the encode image button, grab whatever is in the text box,
-    //Make the QR code, then encode the image
-    encodeImage.addEventListener('click', () => {
-    
-    //Get data:
-    var userInputedData = document.getElementById("data").value
-    console.log("Userdata: " + userInputedData)
-
-    //Add data to formData:
-    var userFormData = new FormData();
-    userFormData.append('userInputedData', userInputedData);
-
-    //Run script to create QR Code
-    fetch('/run-python', {
-        method: 'POST',
-        body: userFormData
-    })
-    .then(response => response.text())
-    .then(data => {
-        console.log(data);
-        generateAndShowQRCode()
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
-
-    //Show the QR code:
-    //generateAndShowQRCode()
-    console.log("Encoding Complete")
-});
-  </script>
+</body>
 </html>
 

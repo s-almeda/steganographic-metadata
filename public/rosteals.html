@@ -1,0 +1,57 @@
+<h1>Robust Metadata Embedding with RoSteALS example</h1>
+
+<h2>Special Upload File Form:</h2>
+
+<form method="POST" action="/image" enctype="multipart/form-data">
+    <div>
+        <label>Upload profile picture</label>
+        <input type="file" name="image" required/>
+    </div>
+    <div>
+        <input type="submit" value="Upload" />
+    </div>
+</form>
+
+<br>
+Image ID: <div id="image_id"></div>
+<br>
+<button id="decodeButton">Decode Image (look for hidden secretsin the image)</button>
+<button id="resetButton">Reset</button>
+<canvas id="imageCanvas" width="400" height="300"></canvas>
+
+
+<!--script>
+
+    function handleImageUpload(e) {
+        const file = e.target.files[0];
+        console.log("received image");
+    }
+    
+    function submit() {
+
+        var formData = new FormData();
+        var imageId = generateImageID(); 
+
+        //display newly generated image ID on the page
+        document.getElementById("image_id").innerHTML = imageId; 
+
+        // sends the image and its id in the body of the request.
+        formData.append('image', file);
+        formData.append('id', imageId); 
+
+        console.log("sending image to server...")
+        fetch('/upload', { //send it to the 'upload' route in 'App.js'
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.text())
+        .then(data => {
+            console.log(data);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+        
+    }
+
+</script-->
