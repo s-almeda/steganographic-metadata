@@ -26,6 +26,8 @@
     <button id="encodeBtn">Encode Image (embed QR Code)</button>
     <button id="decodeButton">Decode Image (look for hidden QR Code)</button>
     <button id="resetButton">Reset</button>
+    <button id="notionButton">Notion</button>
+    <button id="createDBButton">Notion: Create DB</button>
     <form id = "dataForm"> </form>
         <label for="data">Enter Data to Encode:</label>
         <input type="text" id="data" name="data"><br><br>
@@ -50,6 +52,8 @@
         //get elements
         const imageInput = document.getElementById("imageInput");
         const encodeImage = document.getElementById("encodeBtn");
+        const notionButton = document.getElementById("notionButton")
+        const createDBButton = document.getElementById("createDBButton");
         const canvas = document.getElementById("imageCanvas");
         const qrCode = document.getElementById("qrCanvas");
         const ctx = canvas.getContext("2d");
@@ -146,6 +150,32 @@
     //generateAndShowQRCode()
     console.log("Encoding Complete")
 });
+
+  notionButton.addEventListener('click', () => {
+    fetch('/notion/ping', {
+        method: "POST"
+    })
+    .then(response => response.text())
+    .then(data => {
+        console.log(data);
+    })
+    .catch(err => {
+        console.error('Error: ', error);
+    });
+  });
+
+  createDBButton.addEventListener('click', () => {
+    fetch('/notion/createDB', {
+        method: "POST"
+    })
+    .then(response => response.text())
+    .then(data => {
+        console.log(data);
+    })
+    .catch(err => {
+        console.error('Error: ', error);
+    });
+  });
   </script>
 </html>
 

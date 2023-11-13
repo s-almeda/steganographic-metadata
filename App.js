@@ -11,6 +11,13 @@ const pythonScriptPath = 'path/to/python_script.py';
 const router = express.Router();
 const app = express();
 const path = require('path');
+const { Client } = require("@notionhq/client")
+
+
+
+const client = new Client({
+    auth: "secret_L3sgvYtiLhQPlbT6LYuCmC8xLigzRi6JiOborAxNgPC"
+});
 
 //specify that we want to run our website on 'http://localhost:8000/'
 const host = 'localhost';
@@ -43,6 +50,55 @@ app.post('/run-python', (req, res) => {
         }
     });
 });
+
+app.post('/notion/ping', async (req, res) => {
+
+    const resp = await client.users.list({});
+
+    res.send(resp);
+});
+
+app.post('/notion/createDB', async (req, res) => {
+
+    try {
+        const resp = await client.databases.create({
+            parent: {
+                type: "page_id",
+                "page_id": "942ee638392a4ce0b6982848b7a8f678"
+            },
+            title: [
+                {
+                    type: "text",
+                    text: {
+                        content: "image_metadata"
+                    }
+                }
+            ],
+            properties: {
+                uuid8: {
+                    type: "text",
+                    title: {}
+                },
+                uploader: {
+                    type: "text"
+                },
+                attr_url: {
+                    type: "text"
+                },
+                attr_alias: {
+                    type: "text"
+                },
+                attr_date: {
+                    type: "date"
+                },
+            }
+        });
+        res.send(resp);
+    } catch (err) {
+        res.err("Error :(");
+    }
+
+})
 
 
 //This will save the image in the upload folder:
